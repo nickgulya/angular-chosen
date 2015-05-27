@@ -36,6 +36,9 @@ angular.module('localytics.directives').directive 'chosen', ['$timeout', ($timeo
   terminal: true
   link: (scope, element, attr, ngModel) ->
 
+    attr.$observe 'placeholder', ->
+      element.trigger('chosen:updated')
+
     element.addClass('localytics-chosen')
 
     # Take a hash of options from the chosen directive

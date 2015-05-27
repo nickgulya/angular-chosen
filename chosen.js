@@ -33,6 +33,9 @@
         terminal: true,
         link: function(scope, element, attr, ngModel) {
           var chosen, defaultText, disableWithMessage, empty, initOrUpdate, match, options, origRender, removeEmptyMessage, startLoading, stopLoading, valuesExpr, viewWatch;
+          attr.$observe('placeholder', function () {
+            element.trigger('chosen:updated')
+          });
           element.addClass('localytics-chosen');
           options = scope.$eval(attr.chosen) || {};
           angular.forEach(attr, function(value, key) {

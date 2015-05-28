@@ -10,7 +10,7 @@
     angular.module('localytics.directives', []);
 
     angular.module('localytics.directives').directive('chosen', [
-        '$timeout', function ($timeout) {
+        '$timeout', '$filter', function ($timeout, $filter) {
             var CHOSEN_OPTION_WHITELIST, NG_OPTIONS_REGEXP, isEmpty, snakeCase;
             NG_OPTIONS_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?(?:\s+group\s+by\s+(.*))?\s+for\s+(?:([\$\w][\$\w]*)|(?:\(\s*([\$\w][\$\w]*)\s*,\s*([\$\w][\$\w]*)\s*\)))\s+in\s+(.*?)(?:\s+track\s+by\s+(.*?))?$/;
             CHOSEN_OPTION_WHITELIST = ['noResultsText', 'allowSingleDeselect', 'disableSearchThreshold', 'disableSearch', 'enableSplitWordSearch', 'inheritSelectClasses', 'maxSelectedOptions', 'placeholderTextMultiple', 'placeholderTextSingle', 'searchContains', 'singleBackstrokeDelete', 'displayDisabledOptions', 'displaySelectedOptions', 'width'];
@@ -37,14 +37,7 @@
                 require: '?ngModel',
                 terminal: true,
                 link: function (scope, element, attr, ngModel) {
-                    
-                    if(String(element.attr('data-placeholder')).slice(0,2) == '{{') {
-                        var regex = new RegExp('.*[\'"]+(.*)[\'"]+.*')
-                        element.attr('data-placeholder', String(element.attr('data-placeholder')).replace(regex, '$1'));
-                    }
-                    attr.$observe('placeholder', function () {
-                        element.attr('data-placeholder', attr.placeholder).trigger('chosen:updated')
-                    });
+
                     var chosen, defaultText, disableWithMessage, empty, initOrUpdate, match, options, origRender, removeEmptyMessage, startLoading, stopLoading, valuesExpr, viewWatch;
                     element.addClass('localytics-chosen');
                     options = scope.$eval(attr.chosen) || {};
@@ -70,6 +63,19 @@
                             return defaultText = chosen.default_text;
                         }
                     };
+
+                    function update() {
+                        defaultText = $filter('translate')(attr.placeholder);
+                        angular.element(element[0]).attr('data-placeholder', defaultText).trigger('chosen:updated');
+
+                        if (chosen) {
+                            element.data("chosen").default_text = defaultText;
+                        }
+
+                    }
+
+                    update();
+                    attr.$observe('placeholder', update);
                     removeEmptyMessage = function () {
                         empty = false;
                         return element.attr('data-placeholder', defaultText);
@@ -122,6 +128,7 @@
                         });
                     }
                 }
+
             };
         }
     ]);

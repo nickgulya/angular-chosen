@@ -37,8 +37,10 @@
                 require: '?ngModel',
                 terminal: true,
                 link: function (scope, element, attr, ngModel) {
+                    
                     if(String(element.attr('data-placeholder')).slice(0,2) == '{{') {
-                        element.attr('data-placeholder', 'Select an option');
+                        var regex = new RegExp('.*[\'"]+(.*)[\'"]+.*')
+                        element.attr('data-placeholder', String(element.attr('data-placeholder')).replace(regex, '$1'));
                     }
                     attr.$observe('placeholder', function () {
                         element.attr('data-placeholder', attr.placeholder).trigger('chosen:updated')
